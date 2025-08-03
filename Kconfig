@@ -1,0 +1,18 @@
+config ZMK_INPUT_PROCESSOR_TRACKBALL_THRESHOLD
+    bool "Trackball threshold input processor"
+    default y
+    depends on ZMK_INPUT_PROCESSORS
+    help
+      Enable trackball movement threshold filtering input processor.
+      This processor filters out small trackball movements below a configurable threshold,
+      preventing accidental auto mouse layer activation from minor vibrations.
+
+config ZMK_INPUT_PROCESSOR_TRACKBALL_THRESHOLD_DEFAULT_THRESHOLD
+    int "Default movement threshold"
+    default 5
+    range 0 1000
+    depends on ZMK_INPUT_PROCESSOR_TRACKBALL_THRESHOLD
+    help
+      Default threshold value for trackball movement filtering.
+      Movement is calculated as abs(x) + abs(y).
+      Values below this threshold will be discarded. 

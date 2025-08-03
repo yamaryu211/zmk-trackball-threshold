@@ -1,0 +1,19 @@
+description: |
+  Trackball threshold input processor that filters out small movements below a configurable threshold.
+  This helps prevent accidental auto mouse layer activation from minor trackball vibrations.
+
+compatible: "zmk,input-processor-trackball-threshold"
+
+include: input-processor.yaml
+
+properties:
+  movement-threshold:
+    type: int
+    default: 5
+    description: |
+      Minimum movement threshold for trackball input.
+      Movement is calculated as abs(x) + abs(y).
+      Values below this threshold will be discarded.
+
+input-processor-cells:
+  - threshold
