@@ -69,16 +69,16 @@ To integrate with actual zmk-config:
 2. Include threshold processor in trackball listener:
 
 ```c
+/ {
+    zip_trackball_threshold: zip_trackball_threshold {
+        compatible = "zmk,input-processor-trackball-threshold";
+        #input-processor-cells = <0>;
+        movement-threshold = <5>; // Adjust as needed
+    };
+};
+
 &trackball_listener {
     input-processors = <&zip_trackball_threshold>, <&zip_temp_layer AML 30000>;
-};
-```
-
-3. Configure threshold value as needed:
-
-```c
-&zip_trackball_threshold {
-    movement-threshold = <5>; // Adjust as needed
 };
 ```
 

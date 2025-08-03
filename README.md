@@ -41,6 +41,7 @@ manifest:
 / {
     zip_trackball_threshold: zip_trackball_threshold {
         compatible = "zmk,input-processor-trackball-threshold";
+        #input-processor-cells = <0>;
         movement-threshold = <5>; // Optional, defaults to Kconfig value
     };
 };
@@ -55,6 +56,7 @@ manifest:
 - `movement-threshold`: Minimum movement threshold (default: 5)
   - Movement is calculated as `abs(x) + abs(y)`
   - Values below this threshold are discarded
+- `#input-processor-cells`: Must be set to `<0>` (no parameters)
 
 ### Kconfig Options
 
