@@ -15,7 +15,6 @@ properties:
 
   track-remainders:
     type: boolean
-    default: false
     description: |
       Whether to track remainder values for precise input processing.
       This is required by the ZMK input processor system.
