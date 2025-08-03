@@ -7,7 +7,15 @@
 #pragma once
 
 #include <zephyr/device.h>
-#include <zmk/input_processors.h>
+
+/**
+ * @brief ZMK input processor state structure
+ */
+struct zmk_input_processor_state {
+    struct input_event *events;
+    size_t count;
+    size_t capacity;
+};
 
 /**
  * @brief Trackball threshold input processor configuration
@@ -26,7 +34,7 @@ struct trackball_threshold_data {
 
 /**
  * @brief Process input event through trackball threshold filter
- * 
+ *
  * @param dev Input processor device
  * @param event Input event to process
  * @param param Processing parameters
