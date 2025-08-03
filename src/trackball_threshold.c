@@ -12,6 +12,7 @@
 #include <zephyr/input/input.h>
 
 #include <zmk/trackball_threshold.h>
+#include <zmk/keymap.h>
 
 LOG_MODULE_DECLARE(zmk, CONFIG_ZMK_LOG_LEVEL);
 
@@ -27,6 +28,12 @@ static int zmk_input_processor_state_add_event(struct zmk_input_processor_state 
 // Helper function for absolute value
 static inline uint16_t abs_value(int16_t val) {
     return val < 0 ? -val : val;
+}
+
+// Helper function to check if AML layer is active
+static bool is_aml_active(void) {
+    // AMLレイヤーは8番として定義されている
+    return zmk_keymap_layer_active(8);
 }
 
 static int trackball_threshold_process(const struct device *dev, struct input_event *event,
@@ -50,27 +57,35 @@ static int trackball_threshold_process(const struct device *dev, struct input_ev
     // Calculate total movement magnitude
     uint16_t movement_magnitude = abs_value(data->accumulated_x) + abs_value(data->accumulated_y);
 
-    // Check if movement exceeds threshold
-    if (movement_magnitude > config->movement_threshold) {
-        // Replace current event with accumulated value
-        if (event->code == INPUT_REL_X && data->accumulated_x != 0) {
-            event->value = data->accumulated_x;
-            data->accumulated_x = 0;
-        } else if (event->code == INPUT_REL_Y && data->accumulated_y != 0) {
-            event->value = data->accumulated_y;
-            data->accumulated_y = 0;
-        }
+    // Check if AML is currently active
+    bool aml_active = is_aml_active();
 
-        // Reset both accumulations when threshold is exceeded
-        data->accumulated_x = 0;
-        data->accumulated_y = 0;
-
-        // Forward the modified event
-        return zmk_input_processor_state_add_event(state, *event);
+    // If AML is not active and movement is below threshold, discard the event
+    // This prevents AML from being triggered by small movements
+    if (!aml_active && movement_magnitude <= config->movement_threshold) {
+        // Movement below threshold and AML not active, discard
+        return 0;
     }
 
-    // Movement below threshold, discard (don't add to state)
-    return 0;
+    // If we reach here, either:
+    // 1. AML is already active (normal operation)
+    // 2. Movement exceeds threshold (should trigger AML via zip_temp_layer)
+    
+    // Replace current event with accumulated value and reset accumulation
+    if (event->code == INPUT_REL_X && data->accumulated_x != 0) {
+        event->value = data->accumulated_x;
+        data->accumulated_x = 0;
+    } else if (event->code == INPUT_REL_Y && data->accumulated_y != 0) {
+        event->value = data->accumulated_y;
+        data->accumulated_y = 0;
+    }
+
+    // Reset both accumulations when processing movement
+    data->accumulated_x = 0;
+    data->accumulated_y = 0;
+
+    // Forward the modified event
+    return zmk_input_processor_state_add_event(state, *event);
 }
 
 static int trackball_threshold_init(const struct device *dev) {
