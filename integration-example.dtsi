@@ -1,0 +1,32 @@
+/*
+ * Integration example for zmk-trackball-threshold with roBa config
+ * 
+ * Add this to your keymap file:
+ * #include <trackball-threshold.dtsi>
+ * 
+ * Then modify your trackball_listener:
+ */
+
+// Override default threshold if needed
+&zip_trackball_threshold {
+    movement-threshold = <5>; // Adjust as needed
+};
+
+// Example integration with existing trackball_listener
+/*
+&trackball_listener {
+    // AML設定 - add threshold processor before temp layer
+    input-processors = <&zip_trackball_threshold>, <&zip_temp_layer AML 30000>;
+
+    // Other existing configurations remain unchanged
+    scroller_mac {
+        layers = <FUNC_SCROLL_MAC>;
+        input-processors =
+            <&zip_xy_scaler 1 16>,
+            <&zip_xy_transform INPUT_TRANSFORM_Y_INVERT>,
+            <&zip_xy_to_scroll_mapper>;
+    };
+    
+    // ... rest of your existing configuration
+};
+*/ 

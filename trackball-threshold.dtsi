@@ -1,0 +1,13 @@
+/*
+ * Copyright (c) 2024 The ZMK Contributors
+ *
+ * SPDX-License-Identifier: MIT
+ */
+
+/ {
+    zip_trackball_threshold: zip_trackball_threshold {
+        compatible = "zmk,input-processor-trackball-threshold";
+        #input-processor-cells = <0>;
+        movement-threshold = <5>; // Default threshold, can be overridden
+    };
+}; 
