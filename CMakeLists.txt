@@ -1,5 +1,4 @@
-if(CONFIG_ZMK_INPUT_PROCESSOR_TRACKBALL_THRESHOLD)
-  zephyr_library()
-  zephyr_library_sources(src/trackball_threshold.c)
-  zephyr_library_include_directories(include)
-endif() 
+zephyr_library()
+
+zephyr_library_sources_ifdef(CONFIG_ZMK_INPUT_PROCESSOR_TRACKBALL_THRESHOLD src/trackball_threshold.c)
+zephyr_library_include_directories(include) 
