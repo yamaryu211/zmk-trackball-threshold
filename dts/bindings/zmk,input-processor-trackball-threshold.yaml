@@ -4,8 +4,6 @@ description: |
 
 compatible: "zmk,input-processor-trackball-threshold"
 
-include: input-processor.yaml
-
 properties:
   movement-threshold:
     type: int
