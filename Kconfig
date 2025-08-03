@@ -1,7 +1,6 @@
 config ZMK_INPUT_PROCESSOR_TRACKBALL_THRESHOLD
     bool "Trackball threshold input processor"
     default y
-    depends on ZMK_INPUT_PROCESSORS
     help
       Enable trackball movement threshold filtering input processor.
       This processor filters out small trackball movements below a configurable threshold,
