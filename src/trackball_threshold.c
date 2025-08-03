@@ -52,39 +52,21 @@ static int trackball_threshold_process(const struct device *dev, struct input_ev
 
     // Check if movement exceeds threshold
     if (movement_magnitude > config->movement_threshold) {
-        int ret = 0;
-
-        // Output accumulated X movement if non-zero
-        if (data->accumulated_x != 0) {
-            struct input_event x_event = {
-                .type = INPUT_EV_REL,
-                .code = INPUT_REL_X,
-                .value = data->accumulated_x
-            };
-            ret = zmk_input_processor_state_add_event(state, x_event);
-            if (ret < 0) {
-                return ret;
-            }
+        // Replace current event with accumulated value
+        if (event->code == INPUT_REL_X && data->accumulated_x != 0) {
+            event->value = data->accumulated_x;
+            data->accumulated_x = 0;
+        } else if (event->code == INPUT_REL_Y && data->accumulated_y != 0) {
+            event->value = data->accumulated_y;
+            data->accumulated_y = 0;
         }
 
-        // Output accumulated Y movement if non-zero
-        if (data->accumulated_y != 0) {
-            struct input_event y_event = {
-                .type = INPUT_EV_REL,
-                .code = INPUT_REL_Y,
-                .value = data->accumulated_y
-            };
-            ret = zmk_input_processor_state_add_event(state, y_event);
-            if (ret < 0) {
-                return ret;
-            }
-        }
-
-        // Reset accumulation
+        // Reset both accumulations when threshold is exceeded
         data->accumulated_x = 0;
         data->accumulated_y = 0;
 
-        return ret;
+        // Forward the modified event
+        return zmk_input_processor_state_add_event(state, *event);
     }
 
     // Movement below threshold, discard (don't add to state)
