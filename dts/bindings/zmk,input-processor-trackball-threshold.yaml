@@ -16,4 +16,4 @@ properties:
       Values below this threshold will be discarded.
 
 input-processor-cells:
-  - threshold
+  const: 0

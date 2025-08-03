@@ -1,0 +1,17 @@
+manifest:
+  remotes:
+    - name: zmkfirmware
+      url-base: https://github.com/zmkfirmware
+    - name: local
+      url-base: file://
+  projects:
+    - name: zmk
+      remote: zmkfirmware
+      revision: main
+      import: app/west.yml
+    # Local module for testing
+    - name: zmk-trackball-threshold
+      remote: local
+      path: /Users/yamaryu211/Dev/zmk/roBa/zmk-modules/zmk-trackball-threshold
+  self:
+    path: config

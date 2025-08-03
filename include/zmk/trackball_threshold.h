@@ -20,7 +20,8 @@ struct trackball_threshold_config {
  * @brief Trackball threshold input processor data
  */
 struct trackball_threshold_data {
-    /* Currently no runtime data needed */
+    int16_t accumulated_x;
+    int16_t accumulated_y;
 };
 
 /**

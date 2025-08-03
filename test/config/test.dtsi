@@ -1,0 +1,30 @@
+/*
+ * Test configuration for zmk-trackball-threshold module
+ */
+
+/ {
+    // Test trackball threshold processor with default settings
+    zip_trackball_threshold: zip_trackball_threshold {
+        compatible = "zmk,input-processor-trackball-threshold";
+        // movement-threshold = <5>; // Uses Kconfig default
+    };
+
+    // Test trackball threshold processor with custom threshold
+    zip_trackball_threshold_custom: zip_trackball_threshold_custom {
+        compatible = "zmk,input-processor-trackball-threshold";
+        movement-threshold = <10>; // Custom threshold
+    };
+
+    // Test trackball threshold processor with low threshold
+    zip_trackball_threshold_low: zip_trackball_threshold_low {
+        compatible = "zmk,input-processor-trackball-threshold";
+        movement-threshold = <2>; // Low threshold for testing
+    };
+};
+
+// Example usage in trackball listener (commented out for testing)
+/*
+&trackball_listener {
+    input-processors = <&zip_trackball_threshold>, <&zip_temp_layer AML 30000>;
+};
+*/ 

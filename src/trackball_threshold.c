@@ -9,15 +9,22 @@
 #include <zephyr/device.h>
 #include <zephyr/kernel.h>
 #include <zephyr/logging/log.h>
+#include <zephyr/input/input.h>
 
 #include <zmk/input_processors.h>
 #include <zmk/trackball_threshold.h>
 
 LOG_MODULE_DECLARE(zmk, CONFIG_ZMK_LOG_LEVEL);
 
+// Helper function for absolute value
+static inline uint16_t abs_value(int16_t val) {
+    return val < 0 ? -val : val;
+}
+
 static int trackball_threshold_process(const struct device *dev, struct input_event *event,
                                      uint32_t param, struct zmk_input_processor_state *state) {
     const struct trackball_threshold_config *config = dev->config;
+    struct trackball_threshold_data *data = dev->data;
     
     // Only process mouse movement events
     if (event->code != INPUT_REL_X && event->code != INPUT_REL_Y) {
@@ -26,42 +33,50 @@ static int trackball_threshold_process(const struct device *dev, struct input_ev
     }
     
     // Accumulate movement for threshold calculation
-    static int16_t accumulated_x = 0;
-    static int16_t accumulated_y = 0;
-    
     if (event->code == INPUT_REL_X) {
-        accumulated_x += event->value;
+        data->accumulated_x += event->value;
     } else if (event->code == INPUT_REL_Y) {
-        accumulated_y += event->value;
+        data->accumulated_y += event->value;
     }
     
     // Calculate total movement magnitude
-    uint16_t movement_magnitude = abs(accumulated_x) + abs(accumulated_y);
+    uint16_t movement_magnitude = abs_value(data->accumulated_x) + abs_value(data->accumulated_y);
     
     // Check if movement exceeds threshold
     if (movement_magnitude > config->movement_threshold) {
-        // Movement exceeds threshold, pass through accumulated movement
-        struct input_event x_event = {
-            .type = INPUT_EV_REL,
-            .code = INPUT_REL_X,
-            .value = accumulated_x
-        };
-        struct input_event y_event = {
-            .type = INPUT_EV_REL,
-            .code = INPUT_REL_Y,
-            .value = accumulated_y
-        };
+        int ret = 0;
+        
+        // Output accumulated X movement if non-zero
+        if (data->accumulated_x != 0) {
+            struct input_event x_event = {
+                .type = INPUT_EV_REL,
+                .code = INPUT_REL_X,
+                .value = data->accumulated_x
+            };
+            ret = zmk_input_processor_state_add_event(state, x_event);
+            if (ret < 0) {
+                return ret;
+            }
+        }
+        
+        // Output accumulated Y movement if non-zero
+        if (data->accumulated_y != 0) {
+            struct input_event y_event = {
+                .type = INPUT_EV_REL,
+                .code = INPUT_REL_Y,
+                .value = data->accumulated_y
+            };
+            ret = zmk_input_processor_state_add_event(state, y_event);
+            if (ret < 0) {
+                return ret;
+            }
+        }
         
         // Reset accumulation
-        accumulated_x = 0;
-        accumulated_y = 0;
+        data->accumulated_x = 0;
+        data->accumulated_y = 0;
         
-        // Add both events to state
-        int ret = zmk_input_processor_state_add_event(state, x_event);
-        if (ret < 0) {
-            return ret;
-        }
-        return zmk_input_processor_state_add_event(state, y_event);
+        return ret;
     }
     
     // Movement below threshold, discard (don't add to state)
@@ -69,7 +84,14 @@ static int trackball_threshold_process(const struct device *dev, struct input_ev
 }
 
 static int trackball_threshold_init(const struct device *dev) {
-    LOG_DBG("Trackball threshold input processor initialized");
+    struct trackball_threshold_data *data = dev->data;
+    
+    // Initialize accumulated values
+    data->accumulated_x = 0;
+    data->accumulated_y = 0;
+    
+    LOG_DBG("Trackball threshold input processor initialized with threshold %d", 
+            ((const struct trackball_threshold_config *)dev->config)->movement_threshold);
     return 0;
 }
 
