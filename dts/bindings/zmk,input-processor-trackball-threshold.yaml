@@ -13,5 +13,4 @@ properties:
       Movement is calculated as abs(x) + abs(y).
       Values below this threshold will be discarded.
 
-input-processor-cells:
-  const: 0
+input-processor-cells: []
